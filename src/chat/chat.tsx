@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChatThread, Message, User } from "../types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useSearchParams } from "react-router-dom";
 
 export default function Chat() {
   const [user, setUser] = useState<User | null>(null);
@@ -30,6 +31,8 @@ interface ChatInterfaceProps {
 }
 
 function ChatInterface({ user }: ChatInterfaceProps) {
+  const [searchParams] = useSearchParams();
+  const threadParam = searchParams.get("thread");
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedThread, setSelectedThread] = useState<ChatThread | null>(null);
@@ -40,6 +43,14 @@ function ChatInterface({ user }: ChatInterfaceProps) {
       `http://localhost:3001/api/chat/threads/${user.id}`
     );
     setThreads(data);
+
+    // If there's a thread ID in the URL and we haven't selected a thread yet
+    if (threadParam && !selectedThread) {
+      const thread = data.find((t) => t.id === threadParam);
+      if (thread) {
+        setSelectedThread(thread);
+      }
+    }
   };
 
   const fetchMessages = async (threadId: string) => {
@@ -67,7 +78,7 @@ function ChatInterface({ user }: ChatInterfaceProps) {
     fetchThreads();
     const interval = setInterval(fetchThreads, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [threadParam]);
 
   useEffect(() => {
     if (selectedThread) {

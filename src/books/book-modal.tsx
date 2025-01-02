@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   DialogContent,
   DialogDescription,
@@ -20,22 +21,35 @@ interface BookModalProps {
 export function BookModal({ listing, onThreadCreated }: BookModalProps) {
   const [isCreatingChat, setIsCreatingChat] = React.useState(false);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const navigate = useNavigate();
 
   const startChat = async () => {
     try {
       setIsCreatingChat(true);
-      console.log(user.id);
-      console.log(listing.id);
-      const { data: thread } = await axios.post(
-        `http://localhost:3001/api/chat/create/${user.id}`,
-        {
-          listingId: listing.id,
-        }
-      );
 
-      onThreadCreated?.(thread.id);
+      // First check if a chat already exists
+      try {
+        const { data: existingThread } = await axios.get(
+          `http://localhost:3001/api/chat/find/${user.id}/${listing.id}`
+        );
+
+        if (existingThread) {
+          navigate(`/chat?thread=${existingThread.id}`);
+          return;
+        }
+      } catch (e) {
+        // If no existing chat, create a new one
+        const { data: newThread } = await axios.post(
+          `http://localhost:3001/api/chat/create/${user.id}`,
+          {
+            listingId: listing.id,
+          }
+        );
+        navigate(`/chat?thread=${newThread.id}`);
+        onThreadCreated?.(newThread.id);
+      }
     } catch (e) {
-      console.error("Error creating chat:", e);
+      console.error("Error with chat:", e);
     } finally {
       setIsCreatingChat(false);
     }
