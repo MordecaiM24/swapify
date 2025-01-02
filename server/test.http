@@ -1,0 +1,11 @@
+POST http://localhost:3001/api/auth/register HTTP/1.1
+content-type: "application/json"
+
+{
+  "name": "mordecai",
+  "username": "mordecai",
+  "email": "m@ncsu.edu",
+  "password": "password",
+  "phone": "919-123-4567",
+  "venmoHandle": "mordecai"
+}

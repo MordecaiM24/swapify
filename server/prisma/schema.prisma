@@ -1,0 +1,134 @@
+// schema.prisma
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["fullTextSearchPostgres"]
+}
+
+model User {
+    id            String   @id @default(uuid())
+    name          String
+    username      String   @unique
+    email         String   @unique
+    emailVerified Boolean  @default(false)
+    password      String
+    phone         String?
+    venmoHandle   String?
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    watchlist     Json[]   @default([]) // just array of listing ids
+
+    // Relations
+    listings    Listing[]
+    buyerDeals  Deal[]       @relation("buyer")
+    sellerDeals Deal[]       @relation("seller")
+    ChatThread  ChatThread[]
+    chatBuyer   ChatThread[] @relation("chatBuyer")
+    chatSeller  ChatThread[] @relation("chatSeller")
+    Message     Message[]
+
+    @@index([email])
+    @@index([id])
+}
+
+model Listing {
+    id            String        @id @default(uuid())
+    isbn          String
+    title         String
+    author        String
+    edition       String
+    courseCodes   String[]
+    condition     Condition
+    hasNotes      Boolean       @default(false)
+    hasHighlights Boolean       @default(false)
+    price         Decimal       @db.Decimal(10, 2)
+    description   String?
+    images        String[] // URLs to stored images
+    status        ListingStatus @default(AVAILABLE)
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+
+    // Relations
+    sellerId   String
+    seller     User         @relation(fields: [sellerId], references: [id])
+    deals      Deal[]
+    ChatThread ChatThread[]
+
+    @@index([isbn])
+    @@index([courseCodes])
+}
+
+model Deal {
+    id            String     @id @default(uuid())
+    listingId     String
+    buyerId       String
+    sellerId      String
+    agreedPrice   Decimal    @db.Decimal(10, 2)
+    status        DealStatus
+    meetupDetails String?
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+
+    // Relations
+    listing Listing @relation(fields: [listingId], references: [id])
+    buyer   User    @relation("buyer", fields: [buyerId], references: [id])
+    seller  User    @relation("seller", fields: [sellerId], references: [id])
+}
+
+enum Condition {
+    NEW
+    LIKE_NEW
+    GOOD
+    FAIR
+    POOR
+}
+
+enum ListingStatus {
+    AVAILABLE
+    PENDING
+    SOLD
+    DELETED
+}
+
+enum DealStatus {
+    PENDING
+    ACCEPTED
+    COMPLETED
+    CANCELLED
+}
+
+model ChatThread {
+    id        String   @id @default(uuid())
+    listingId String
+    buyerId   String
+    sellerId  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    listing  Listing   @relation(fields: [listingId], references: [id])
+    buyer    User      @relation("chatBuyer", fields: [buyerId], references: [id])
+    seller   User      @relation("chatSeller", fields: [sellerId], references: [id])
+    messages Message[]
+    User     User?     @relation(fields: [userId], references: [id])
+    userId   String?
+
+    @@unique([listingId, buyerId]) // one thread per buyer-listing pair
+}
+
+model Message {
+    id        String   @id @default(uuid())
+    text      String
+    threadId  String
+    senderId  String
+    createdAt DateTime @default(now())
+    read      Boolean  @default(false)
+
+    thread ChatThread @relation(fields: [threadId], references: [id])
+    sender User       @relation(fields: [senderId], references: [id])
+
+    @@index([threadId])
+}
