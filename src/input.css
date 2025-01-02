@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.dark *,
+::before,
+::after {
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark textarea,
+select {
+  background-color: hsl(var(--bg)) !important;
+}
