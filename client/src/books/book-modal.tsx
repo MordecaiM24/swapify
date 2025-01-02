@@ -30,7 +30,9 @@ export function BookModal({ listing, onThreadCreated }: BookModalProps) {
       // First check if a chat already exists
       try {
         const { data: existingThread } = await axios.get(
-          `http://localhost:3001/api/chat/find/${user.id}/${listing.id}`
+          `${import.meta.env.VITE_API_ENDPOINT}/api/chat/find/${user.id}/${
+            listing.id
+          }`
         );
 
         if (existingThread) {
@@ -40,7 +42,7 @@ export function BookModal({ listing, onThreadCreated }: BookModalProps) {
       } catch (e) {
         // If no existing chat, create a new one
         const { data: newThread } = await axios.post(
-          `http://localhost:3001/api/chat/create/${user.id}`,
+          `${import.meta.env.VITE_API_ENDPOINT}/api/chat/create/${user.id}`,
           {
             listingId: listing.id,
           }
@@ -154,7 +156,9 @@ function SaveListing({ listingId }: { listingId: string }) {
       const action = isSaved ? "remove" : "add";
 
       const { data: updatedUser } = await axios.patch(
-        `http://localhost:3001/api/auth/user/${user.id}/watchlist`,
+        `${import.meta.env.VITE_API_ENDPOINT}/api/auth/user/${
+          user.id
+        }/watchlist`,
         {
           listingId,
           action,

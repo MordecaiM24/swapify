@@ -38,7 +38,7 @@ export default function Profile() {
     const fetchProfile = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/auth/user/${userId}`
+          `${import.meta.env.VITE_API_ENDPOINT}/api/auth/user/${userId}`
         );
         const data = await response.json();
 
@@ -46,7 +46,7 @@ export default function Profile() {
         const watchlistListings = await Promise.all(
           data.watchlist.map(async (listingId: string) => {
             const res = await fetch(
-              `http://localhost:3001/api/listings/${listingId}`
+              `${import.meta.env.VITE_API_ENDPOINT}/api/listings/${listingId}`
             );
             return res.json();
           })

@@ -40,7 +40,7 @@ function ChatInterface({ user }: ChatInterfaceProps) {
 
   const fetchThreads = async () => {
     const { data } = await axios.get<ChatThread[]>(
-      `http://localhost:3001/api/chat/threads/${user.id}`
+      `${import.meta.env.VITE_API_ENDPOINT}/api/chat/threads/${user.id}`
     );
     setThreads(data);
 
@@ -55,7 +55,9 @@ function ChatInterface({ user }: ChatInterfaceProps) {
 
   const fetchMessages = async (threadId: string) => {
     const { data } = await axios.get<Message[]>(
-      `http://localhost:3001/api/chat/threads/${threadId}/messages/${user.id}`
+      `${
+        import.meta.env.VITE_API_ENDPOINT
+      }/api/chat/threads/${threadId}/messages/${user.id}`
     );
     setMessages(data);
   };
@@ -64,7 +66,9 @@ function ChatInterface({ user }: ChatInterfaceProps) {
     if (!newMessage.trim() || !selectedThread) return;
 
     await axios.post(
-      `http://localhost:3001/api/chat/threads/${selectedThread.id}/messages/${user.id}`,
+      `${import.meta.env.VITE_API_ENDPOINT}/api/chat/threads/${
+        selectedThread.id
+      }/messages/${user.id}`,
       {
         text: newMessage,
       }

@@ -42,7 +42,7 @@ export function CreateListingDialog() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3001/api/listings",
+        `${import.meta.env.VITE_API_ENDPOINT}/api/listings`,
         listing
       );
       console.log(res);

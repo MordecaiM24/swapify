@@ -39,10 +39,13 @@ export default function Login({}: React.ComponentPropsWithoutRef<"div">) {
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3001/api/auth/login", {
-        email: loginEmail,
-        password: loginPassword,
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_ENDPOINT}/api/auth/login`,
+        {
+          email: loginEmail,
+          password: loginPassword,
+        }
+      );
       showErr(false);
       const user = res.data.user;
       localStorage.setItem("user", JSON.stringify(user));
@@ -64,7 +67,7 @@ export default function Login({}: React.ComponentPropsWithoutRef<"div">) {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:3001/api/auth/register",
+        `${import.meta.env.VITE_API_ENDPOINT}/api/auth/register`,
         signupForm
       );
       showErr(false);
