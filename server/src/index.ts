@@ -23,7 +23,10 @@ app.use("/api/chat", chatRoutes);
 app.use(errorHandler);
 
 // Health check
-app.get("/health", (req, res) => res.json({ status: "+" }));
+app.get("/health", (req, res) => {
+  console.log("health check");
+  res.json({ status: "+" });
+});
 
 const start = async () => {
   try {
